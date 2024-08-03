@@ -1,8 +1,8 @@
-# tests/test_tools.py
-
 import pytest
 from syllabus_generator.tools import ingest_documents, setup_embedding_client, create_chroma_collection, generate_syllabus_content, display_syllabus_content
+from syllabus_generator.core import main
 
+# Fixtures for tools.py tests
 @pytest.fixture
 def sample_files():
     # Create or mock sample files needed for testing
@@ -16,6 +16,7 @@ def embed_config():
         "location": "us-east4"
     }
 
+# Tests for tools.py
 def test_ingest_documents(sample_files):
     processor = ingest_documents(sample_files)
     assert processor is not None
@@ -47,3 +48,16 @@ def test_display_syllabus_content(capsys):
     captured = capsys.readouterr()
     assert "Sample Syllabus" in captured.out
     assert "This is a sample syllabus content." in captured.out
+
+# Fixtures for core.py tests
+@pytest.fixture
+def streamlit_app():
+    # Mock Streamlit components if necessary
+    return main
+
+# Tests for core.py
+def test_streamlit_app_execution(streamlit_app):
+    # Assuming main() runs the Streamlit app without returning anything
+    assert streamlit_app() is None
+
+

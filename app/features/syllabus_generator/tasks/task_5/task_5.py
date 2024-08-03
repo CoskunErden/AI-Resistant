@@ -16,7 +16,8 @@ from langchain_core.documents import Document
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:\\Users\\cerde\\Desktop\\RadicalAI\\mission-quizify\\authentication.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:\\Users\\cerde\\Desktop\\syllabus\\authentication.json"
+
 
 class ChromaCollectionCreator:
     def __init__(self, processor, embed_model):

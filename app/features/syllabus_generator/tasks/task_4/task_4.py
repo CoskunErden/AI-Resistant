@@ -1,9 +1,9 @@
-# embedding_client.py
-
 from langchain_google_vertexai import VertexAIEmbeddings
 import os
 
-credentials_path = "C:\\Users\\cerde\\Desktop\\RadicalAI\\mission-quizify\\authentication.json"
+# Set the path to service account key file
+credentials_path = r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\authentication.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
 
 class EmbeddingClient:
     """
@@ -32,17 +32,12 @@ class EmbeddingClient:
     Note: The 'embed_query' method has been provided for you. Focus on correctly initializing the class.
     """
     
-    class EmbeddingClient:
-        def __init__(self, model_name, project, location, credentials_path):
-            self.set_google_credentials(credentials_path)
-            self.client = VertexAIEmbeddings(
-                model_name=model_name,
-                project=project,
-                location=location
+    def __init__(self, model_name, project, location):
+        self.client = VertexAIEmbeddings(
+            model_name=model_name,
+            project=project,
+            location=location
         )
-
-    def set_google_credentials(self, credentials_path):
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
         
     def embed_query(self, query):
         """
