@@ -9,11 +9,11 @@ from tasks.task_4.task_4 import EmbeddingClient # to be updated
 from tasks.task_5.task_5 import ChromaCollectionCreator # to be updated
 from tasks.task_6.task_6 import generate_syllabus # to be updated
 from tasks.task_7.task_7 import display_syllabus # to be updated
-persist_directory = r"C:\Users\cerde\Desktop\RadicalAI\mission-quizify\chroma_db"
+persist_directory = r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\app\features\syllabus_generator\chroma_db"  
 
 embed_config = {
     "model_name": "textembedding-gecko@003",
-    "project": "macro-boulevard-426914-e8",
+    "project": "clever-aleph-430315-m7",
     "location": "us-east4"
 }
 

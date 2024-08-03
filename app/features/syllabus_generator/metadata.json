@@ -1,0 +1,29 @@
+{
+    "name": "syllabus_generator",
+    "description": "A tool to generate syllabus based on grade level, topic, and context.",
+    "version": "1.0.0",
+    "inputs": [
+        {
+            "name": "grade_level",
+            "type": "string",
+            "description": "The grade level for the syllabus."
+        },
+        {
+            "name": "topic",
+            "type": "string",
+            "description": "The topic for the syllabus."
+        },
+        {
+            "name": "context",
+            "type": "string",
+            "description": "The context for the syllabus."
+        }
+    ],
+    "outputs": [
+        {
+            "name": "syllabus",
+            "type": "object",
+            "description": "The generated syllabus content."
+        }
+    ]
+}
