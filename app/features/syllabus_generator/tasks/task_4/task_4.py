@@ -2,7 +2,7 @@ from langchain_google_vertexai import VertexAIEmbeddings
 import os
 
 # Set the path to service account key file
-credentials_path = r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\authentication.json"
+credentials_path = r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\app\local-auth.json"
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
 
 class EmbeddingClient:
