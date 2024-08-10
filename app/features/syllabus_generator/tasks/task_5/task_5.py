@@ -16,7 +16,9 @@ from langchain_core.documents import Document
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:\\Users\\cerde\\Desktop\\syllabus\\authentication.json"
+# Set the path to service account key file
+credentials_path = r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\app\local-auth.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
 
 
 class ChromaCollectionCreator:
@@ -29,6 +31,9 @@ class ChromaCollectionCreator:
         self.processor = processor  # This will hold the DocumentProcessor from Task 3
         self.embed_model = embed_model  # This will hold the EmbeddingClient from Task 4
         self.db = None  # This will hold the Chroma collection
+        # Ensure the persist directory exists
+        if not os.path.exists(persist_directory):
+            os.makedirs(persist_directory)
 
     def create_chroma_collection(self):
         """
@@ -45,6 +50,8 @@ class ChromaCollectionCreator:
         if len(self.processor.pages) == 0:
             st.error("No documents found!", icon="🚨")
             return
+        # Convert each page to a Document object
+        documents = [Document(page_content=str(page)) for page in self.processor.pages]
 
         # Step 2: Split documents into text chunks
         text_splitter = CharacterTextSplitter(
@@ -53,7 +60,7 @@ class ChromaCollectionCreator:
             chunk_overlap=200,  # Define the chunk overlap
             length_function=len
         )
-        texts = text_splitter.split_documents(self.processor.pages)
+        texts = text_splitter.split_documents(documents)
         if texts:
             st.success(f"Successfully split pages into {len(texts)} documents!", icon="✅")
         else:
