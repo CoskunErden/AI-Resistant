@@ -7,10 +7,11 @@ import sys
 # Add the syllabus generator path to sys.path
 sys.path.append(r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\app\features\syllabus_generator")
 
-# Import necessary modules from previous tasks
+# Import necessary modules from the tasks
 from tasks.task_3.task_3 import DocumentProcessor
 from tasks.task_4.task_4 import EmbeddingClient
 from tasks.task_5.task_5 import ChromaCollectionCreator
+from langchain_core.documents import Document
 
 # Set Google Cloud credentials
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\app\local-auth.json"
@@ -19,22 +20,6 @@ class SyllabusGenerator:
     def __init__(self, topic=None, vectorstore=None, grade_level=None, duration=None, learning_objectives=None, 
                  prerequisites=None, format=None, assessment_methods=None, resources=None, teaching_methods=None,
                  special_requirements=None, syllabus_type=None):
-        """
-        Initializes the SyllabusGenerator with various parameters to create a detailed and tailored syllabus.
-
-        :param topic: The required topic of the syllabus.
-        :param vectorstore: An optional vectorstore instance (e.g., ChromaDB) for querying information related to the syllabus topic.
-        :param grade_level: The educational level for which the syllabus is being created (e.g., "Undergraduate").
-        :param duration: The duration of the course or syllabus (e.g., "6 weeks").
-        :param learning_objectives: A list of specific learning objectives or outcomes.
-        :param prerequisites: A list of prerequisites or prior knowledge required.
-        :param format: The format of the course (e.g., "online").
-        :param assessment_methods: A list of assessment methods (e.g., "quizzes").
-        :param resources: A list of suggested readings or resources.
-        :param teaching_methods: A list of teaching methods or instructional strategies.
-        :param special_requirements: Any special requirements or accommodations needed.
-        :param syllabus_type: The type of syllabus (e.g., "thematic").
-        """
         self.topic = topic if topic else "General Topic"
         self.vectorstore = vectorstore
         self.grade_level = grade_level
@@ -70,19 +55,14 @@ class SyllabusGenerator:
             """
     
     def init_llm(self):
-        """
-        Initialize the Large Language Model (LLM) for syllabus generation.
-        """
-        self.llm = VertexAI(
-            model_name="gemini-pro",
-            temperature=0.8,
-            max_output_tokens=500
-        )
+        if self.llm is None:
+            self.llm = VertexAI(
+                model_name="gemini-pro",
+                temperature=0.8,
+                max_output_tokens=500
+            )
     
     def generate_syllabus_with_vectorstore(self):
-        """
-        Generate a syllabus using the topic and additional parameters provided, along with context from the vectorstore.
-        """
         if self.llm is None:
             self.init_llm()
 
@@ -98,21 +78,40 @@ class SyllabusGenerator:
             {"context": retriever, "topic": RunnablePassthrough()}
         )
 
-        chain = setup_and_retrieval | prompt_template | self.llm
-        response = chain.invoke({
-            "topic": self.topic,
-            "grade_level": self.grade_level,
-            "duration": self.duration,
-            "learning_objectives": self.learning_objectives,
-            "prerequisites": self.prerequisites,
-            "format": self.format,
-            "assessment_methods": self.assessment_methods,
-            "resources": self.resources,
-            "teaching_methods": self.teaching_methods,
-            "special_requirements": self.special_requirements,
-            "syllabus_type": self.syllabus_type
-        })
+        # Retrieve the context from the vectorstore
+        context_result = setup_and_retrieval.invoke({"topic": self.topic})
+
+        # Debugging: Check what context_result looks like
+        print(f"context_result: {context_result}")
+
+        # Convert the context into a string in a safe manner
+        if isinstance(context_result, list):
+            context = "\n".join([doc.page_content if isinstance(doc, Document) else str(doc) for doc in context_result])
+        elif isinstance(context_result, dict):
+            context = context_result.get('page_content', str(context_result))
+        else:
+            context = str(context_result)
+
+        # Now format the prompt using the properly converted context and other details
+        prompt = prompt_template.format(
+            topic=self.topic,
+            grade_level=self.grade_level,
+            duration=self.duration,
+            learning_objectives=self.learning_objectives,
+            prerequisites=self.prerequisites,
+            format=self.format,
+            assessment_methods=self.assessment_methods,
+            resources=self.resources,
+            teaching_methods=self.teaching_methods,
+            special_requirements=self.special_requirements,
+            syllabus_type=self.syllabus_type,
+            context=context
+        )
+
+        # Use the LLM to generate the syllabus based on the prompt
+        response = self.llm.generate(prompt)
         return response
+
 
 if __name__ == "__main__":
     st.header("Syllabus Generator")
@@ -152,29 +151,31 @@ if __name__ == "__main__":
         syllabus_type = st.selectbox("Syllabus Type", ["Thematic", "Chronological", "Modular"])
 
         submitted = st.form_submit_button("Generate Syllabus")
+        
+        syllabus = None  # Initialize syllabus to None
+
         if submitted:
             try:
                 chroma_creator.create_chroma_collection()
-                st.success("Chroma Collection created successfully!")
+                generator = SyllabusGenerator(
+                    topic=topic_input,
+                    vectorstore=chroma_creator,
+                    grade_level=grade_level,
+                    duration=duration,
+                    learning_objectives=learning_objectives,
+                    prerequisites=prerequisites,
+                    format=course_format,
+                    assessment_methods=assessment_methods,
+                    resources=resources,
+                    teaching_methods=teaching_methods,
+                    special_requirements=special_requirements,
+                    syllabus_type=syllabus_type
+                )
+                syllabus = generator.generate_syllabus_with_vectorstore()
+            except IndexError as e:
+                st.error(f"Failed to create Chroma Collection: {e}")
             except Exception as e:
-                st.error(f"An error occurred while creating Chroma Collection: {e}")
-
-            generator = SyllabusGenerator(
-                topic=topic_input,
-                vectorstore=chroma_creator,
-                grade_level=grade_level,
-                duration=duration,
-                learning_objectives=learning_objectives,
-                prerequisites=prerequisites,
-                format=course_format,
-                assessment_methods=assessment_methods,
-                resources=resources,
-                teaching_methods=teaching_methods,
-                special_requirements=special_requirements,
-                syllabus_type=syllabus_type
-            )
-            syllabus = generator.generate_syllabus_with_vectorstore()
-
+                st.error(f"An error occurred while generating the syllabus: {e}")
     if syllabus:
         st.header("Generated Syllabus:")
         st.json(syllabus)
