@@ -1,0 +1,36 @@
+{
+    "name": "ai_resistant_assignment_generator",
+    "description": "A tool to generate AI-resistant assignments based on grade level, topic, and uploaded files.",
+    "version": "1.0.0",
+    "inputs": [
+    {
+        "name": "grade_level",
+        "type": "string",
+        "description": "The grade level for which the AI-resistant assignment will be generated."
+    },
+    {
+        "name": "topic",
+        "type": "string",
+        "description": "The topic for the AI-resistant assignment."
+    },
+    {
+        "name": "file",
+        "type": "file",
+        "description": "The uploaded assignment file (PDF, DOCX, PPT, Plain Text)."
+    }
+    ],
+
+    "outputs": [
+    {
+        "name": "ai_resistant_assignments",
+        "type": "object",
+        "description": "The generated AI-resistant assignment versions."
+    },
+    {
+        "name": "modification_explanations",
+        "type": "object",
+        "description": "Explanations detailing how the assignments were modified to resist AI-generated solutions."
+    }
+    ]
+
+}
