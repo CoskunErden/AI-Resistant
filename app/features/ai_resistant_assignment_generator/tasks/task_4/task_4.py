@@ -2,7 +2,7 @@ from langchain_google_vertexai import VertexAIEmbeddings
 import os
 
 # Set the path to service account key file
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\cerde\Desktop\RadicalAI\AI-Resistant\app\features\ai_resistant_assignment_generator\local-auth\local-auth.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\cerde\Desktop\RadicalAI\AI-Resistant\app\features\ai_resistant_assignment_generator\local-auth.json"
 
 class EmbeddingClient:
     """
@@ -63,7 +63,7 @@ class EmbeddingClient:
 
 if __name__ == "__main__":
     model_name = "textembedding-gecko@003"
-    project = "clever-aleph-430315-m7"
+    project = "ai-resistant"
     location = "us-east4"
 
     embedding_client = EmbeddingClient(model_name, project, location)

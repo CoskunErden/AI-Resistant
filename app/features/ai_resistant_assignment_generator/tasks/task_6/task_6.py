@@ -7,6 +7,7 @@ import chromadb
 sys.path.append(r"C:\Users\cerde\Desktop\RadicalAI\AI-Resistant\app\features\ai_resistant_assignment_generator")
 
 # Import directly from the task modules
+from langchain_core.documents import Document
 from tasks.task_3.task_3 import DocumentProcessor
 from tasks.task_4.task_4 import EmbeddingClient
 from tasks.task_5.task_5 import ChromaCollectionCreator
@@ -17,7 +18,7 @@ if __name__ == "__main__":
     # Configuration for EmbeddingClient
     embed_config = {
         "model_name": "textembedding-gecko@003",
-        "project": "clever-aleph-430315-m7",
+        "project": "ai-resistant",
         "location": "us-east4"
     }
 

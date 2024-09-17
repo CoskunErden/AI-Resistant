@@ -106,7 +106,7 @@ if __name__ == "__main__":
     # Configuration for EmbeddingClient
     embed_config = {
         "model_name": "textembedding-gecko@003",
-        "project": "clever-aleph-430315-m7",
+        "project": "ai-resistant",
         "location": "us-east4"
     }
 
