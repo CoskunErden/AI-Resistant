@@ -4,8 +4,8 @@ from langchain_core.prompts import PromptTemplate
 import os
 import sys
 
-# Add the syllabus generator path to sys.path
-sys.path.append(r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\app\features\syllabus_generator")
+# Update sys.path to include the directory for the AI-Resistant Assignment Generator
+sys.path.append(r"C:\Users\cerde\Desktop\RadicalAI\AI-Resistant\app\features\ai_resistant_assignment_generator")
 
 # Import necessary modules from the tasks
 from tasks.task_3.task_3 import DocumentProcessor
@@ -14,44 +14,35 @@ from tasks.task_5.task_5 import ChromaCollectionCreator
 from langchain_core.documents import Document
 
 # Set Google Cloud credentials
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\app\local-auth.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\cerde\Desktop\RadicalAI\AI-Resistant\app\features\ai_resistant_assignment_generator\local-auth\local-auth.json"
 
-class SyllabusGenerator:
-    def __init__(self, topic=None, vectorstore=None, grade_level=None, duration=None, learning_objectives=None, 
-                 prerequisites=None, format=None, assessment_methods=None, resources=None, teaching_methods=None,
-                 special_requirements=None, syllabus_type=None):
-        self.topic = topic if topic else "General Topic"
+class AIResistantAssignmentGenerator:
+    def __init__(self, assignment_topic=None, vectorstore=None, grade_level=None, core_objectives=None, 
+                 modifications=None, assignment_format=None, resources=None, assessment_methods=None):
+        self.assignment_topic = assignment_topic if assignment_topic else "General Assignment Topic"
         self.vectorstore = vectorstore
         self.grade_level = grade_level
-        self.duration = duration
-        self.learning_objectives = learning_objectives
-        self.prerequisites = prerequisites
-        self.format = format
-        self.assessment_methods = assessment_methods
+        self.core_objectives = core_objectives
+        self.modifications = modifications
+        self.assignment_format = assignment_format
         self.resources = resources
-        self.teaching_methods = teaching_methods
-        self.special_requirements = special_requirements
-        self.syllabus_type = syllabus_type
+        self.assessment_methods = assessment_methods
         self.llm = None
         self.system_template = """
-            You are an expert in the topic: {topic}
+            You are an expert in designing educational assignments resistant to AI tools like ChatGPT or Gemini.
 
-            Create a detailed syllabus considering the following parameters:
+            Create an AI-resistant version of the assignment based on the following parameters:
 
             - Grade Level: {grade_level}
-            - Duration: {duration}
-            - Learning Objectives: {learning_objectives}
-            - Prerequisites: {prerequisites}
-            - Format: {format}
+            - Core Objectives: {core_objectives}
+            - Modifications: {modifications}
+            - Format: {assignment_format}
             - Assessment Methods: {assessment_methods}
             - Resources: {resources}
-            - Teaching Methods: {teaching_methods}
-            - Special Requirements: {special_requirements}
-            - Syllabus Type: {syllabus_type}
-
-            Structure the syllabus to include key topics and subtopics, descriptions, suggested readings or resources, and any other relevant details.
 
             Context: {context}
+
+            Provide three distinct versions of the assignment, with explanations on how each is designed to be resistant to AI tools.
             """
     
     def init_llm(self):
@@ -62,12 +53,12 @@ class SyllabusGenerator:
                 max_output_tokens=500
             )
     
-    def generate_syllabus_with_vectorstore(self):
+    def generate_ai_resistant_assignments(self):
         if self.llm is None:
             self.init_llm()
 
         if self.vectorstore is None:
-            raise ValueError("Vectorstore must be initialized for generating the syllabus.")
+            raise ValueError("Vectorstore must be initialized for generating the assignment.")
 
         from langchain_core.runnables import RunnablePassthrough, RunnableParallel
 
@@ -75,11 +66,11 @@ class SyllabusGenerator:
         prompt_template = PromptTemplate.from_template(self.system_template)
 
         setup_and_retrieval = RunnableParallel(
-            {"context": retriever, "topic": RunnablePassthrough()}
+            {"context": retriever, "assignment_topic": RunnablePassthrough()}
         )
 
         # Retrieve the context from the vectorstore
-        context_result = setup_and_retrieval.invoke({"topic": self.topic})
+        context_result = setup_and_retrieval.invoke({"assignment_topic": self.assignment_topic})
 
         # Debugging: Check what context_result looks like
         print(f"context_result: {context_result}")
@@ -92,29 +83,25 @@ class SyllabusGenerator:
         else:
             context = str(context_result)
 
-        # Now format the prompt using the properly converted context and other details
+        # Format the prompt with assignment-related details and context
         prompt = prompt_template.format(
-            topic=self.topic,
+            assignment_topic=self.assignment_topic,
             grade_level=self.grade_level,
-            duration=self.duration,
-            learning_objectives=self.learning_objectives,
-            prerequisites=self.prerequisites,
-            format=self.format,
+            core_objectives=self.core_objectives,
+            modifications=self.modifications,
+            assignment_format=self.assignment_format,
             assessment_methods=self.assessment_methods,
             resources=self.resources,
-            teaching_methods=self.teaching_methods,
-            special_requirements=self.special_requirements,
-            syllabus_type=self.syllabus_type,
             context=context
         )
 
-        # Use the LLM to generate the syllabus based on the prompt
+        # Use the LLM to generate AI-resistant assignments based on the prompt
         response = self.llm.generate(prompt)
         return response
 
 
 if __name__ == "__main__":
-    st.header("Syllabus Generator")
+    st.header("AI-Resistant Assignment Generator")
 
     # Configuration for EmbeddingClient
     embed_config = {
@@ -134,48 +121,40 @@ if __name__ == "__main__":
     chroma_creator = ChromaCollectionCreator(processor, embed_client)
 
     with st.form("Load Data to Chroma"):
-        st.subheader("Syllabus Builder")
-        st.write("Select the data source for ingestion, enter the syllabus details, and click Generate!")
+        st.subheader("AI-Resistant Assignment Builder")
+        st.write("Select the data source for ingestion, enter assignment details, and click Generate!")
 
-        # Gather input for the syllabus
-        topic_input = st.text_input("Topic for Syllabus", placeholder="Enter the topic for the syllabus")
+        # Gather input for the assignment
+        assignment_topic = st.text_input("Assignment Topic", placeholder="Enter the topic for the assignment")
         grade_level = st.selectbox("Grade Level", ["Elementary", "Middle School", "High School", "Undergraduate", "Graduate"])
-        duration = st.text_input("Course Duration", placeholder="e.g., 6 weeks, 1 semester")
-        learning_objectives = st.text_area("Learning Objectives", placeholder="List the learning objectives")
-        prerequisites = st.text_area("Prerequisites", placeholder="List any prerequisites")
-        course_format = st.selectbox("Course Format", ["In-Person", "Online", "Hybrid"])
-        assessment_methods = st.text_area("Assessment Methods", placeholder="e.g., Quizzes, Assignments, Exams")
+        core_objectives = st.text_area("Core Objectives", placeholder="List the core objectives for the assignment")
+        modifications = st.text_area("AI-Resistance Modifications", placeholder="Describe how the assignment should be modified to resist AI tools")
+        assignment_format = st.selectbox("Assignment Format", ["Essay", "Project", "Presentation", "Quiz", "Other"])
+        assessment_methods = st.text_area("Assessment Methods", placeholder="e.g., Quizzes, Assignments, Peer Review")
         resources = st.text_area("Suggested Resources", placeholder="e.g., textbooks, articles")
-        teaching_methods = st.text_area("Teaching Methods", placeholder="e.g., Lectures, Group Discussions")
-        special_requirements = st.text_area("Special Requirements", placeholder="List any special requirements")
-        syllabus_type = st.selectbox("Syllabus Type", ["Thematic", "Chronological", "Modular"])
 
-        submitted = st.form_submit_button("Generate Syllabus")
+        submitted = st.form_submit_button("Generate Assignment")
         
-        syllabus = None  # Initialize syllabus to None
+        assignment = None  # Initialize assignment to None
 
         if submitted:
             try:
                 chroma_creator.create_chroma_collection()
-                generator = SyllabusGenerator(
-                    topic=topic_input,
+                generator = AIResistantAssignmentGenerator(
+                    assignment_topic=assignment_topic,
                     vectorstore=chroma_creator,
                     grade_level=grade_level,
-                    duration=duration,
-                    learning_objectives=learning_objectives,
-                    prerequisites=prerequisites,
-                    format=course_format,
+                    core_objectives=core_objectives,
+                    modifications=modifications,
+                    assignment_format=assignment_format,
                     assessment_methods=assessment_methods,
-                    resources=resources,
-                    teaching_methods=teaching_methods,
-                    special_requirements=special_requirements,
-                    syllabus_type=syllabus_type
+                    resources=resources
                 )
-                syllabus = generator.generate_syllabus_with_vectorstore()
+                assignment = generator.generate_ai_resistant_assignments()
             except IndexError as e:
                 st.error(f"Failed to create Chroma Collection: {e}")
             except Exception as e:
-                st.error(f"An error occurred while generating the syllabus: {e}")
-    if syllabus:
-        st.header("Generated Syllabus:")
-        st.json(syllabus)
+                st.error(f"An error occurred while generating the assignment: {e}")
+    if assignment:
+        st.header("Generated AI-Resistant Assignments:")
+        st.json(assignment)

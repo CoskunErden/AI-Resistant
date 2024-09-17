@@ -2,8 +2,7 @@ from langchain_google_vertexai import VertexAIEmbeddings
 import os
 
 # Set the path to service account key file
-credentials_path = r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\app\local-auth.json"
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\cerde\Desktop\RadicalAI\AI-Resistant\app\features\ai_resistant_assignment_generator\local-auth\local-auth.json"
 
 class EmbeddingClient:
     """

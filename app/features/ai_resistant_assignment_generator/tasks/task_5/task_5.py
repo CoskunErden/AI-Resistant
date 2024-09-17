@@ -3,7 +3,7 @@ import os
 import streamlit as st
 
 # Absolute paths to task directories
-persist_directory = r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\app\features\syllabus_generator\chroma_db"
+persist_directory = r"C:\Users\cerde\Desktop\RadicalAI\AI-Resistant\app\features\ai_resistant_assignment_generator\chroma_db"
 
 # Adding task directories to sys.path
 sys.path.append(os.path.abspath('../../'))
@@ -17,9 +17,8 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 
 # Set the path to service account key file
-credentials_path = r"C:\Users\cerde\Desktop\syllabus\kai-ai-backend\app\local-auth.json"
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
 
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\cerde\Desktop\RadicalAI\AI-Resistant\app\features\ai_resistant_assignment_generator\local-auth\local-auth.json"
 
 class ChromaCollectionCreator:
     def __init__(self, processor, embed_model):
